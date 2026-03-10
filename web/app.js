@@ -5,7 +5,7 @@ const eventColors = {
   diverting: "#ef4444",
   landed: "#a855f7",
   gate_arrival: "#64748b",
-  gate_departure: "#0ea5e9",
+  gate_departure: "#ff1493",
 };
 
 const map = L.map("map", {
@@ -56,6 +56,17 @@ function formatInteger(value) {
   return Number(value || 0).toLocaleString();
 }
 
+function formatEventLabel(event) {
+  if (!event) return "Unknown";
+  return String(event)
+    .trim()
+    .toLowerCase()
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function markerRadius(weight) {
   if (weight == null || Number.isNaN(weight)) return 4;
   return Math.max(3, Math.min(14, Math.sqrt(weight / 1200)));
@@ -65,7 +76,7 @@ function renderLegend() {
   const entries = Object.entries(eventColors)
     .map(
       ([event, color]) =>
-        `<span class="legend-item"><span class="swatch" style="background:${color}"></span>${event}</span>`
+        `<span class="legend-item"><span class="swatch" style="background:${color}"></span>${formatEventLabel(event)}</span>`
     )
     .join("");
   eventLegend.innerHTML = entries;
@@ -133,7 +144,7 @@ function renderMap(geojson) {
       const p = feature.properties;
       layer.bindPopup(`
         <strong>${p.callsign ?? p.flight ?? "Unknown Flight"}</strong><br/>
-        Event: ${p.event ?? "unknown"}<br/>
+        Status: ${formatEventLabel(p.event)}<br/>
         Operator: ${p.operator ?? "UNKNOWN"}<br/>
         Equipment: ${p.equipment ?? "UNKNOWN"}<br/>
         Capacity (weight): ${p.available_capacity_weight ? Math.round(p.available_capacity_weight).toLocaleString() : "n/a"}
