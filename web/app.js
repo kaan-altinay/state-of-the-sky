@@ -8,6 +8,59 @@ const eventColors = {
   gate_departure: "#ff1493",
 };
 
+const operatorNames = {
+  SWA: "Southwest Airlines",
+  AAL: "American Airlines",
+  DAL: "Delta Air Lines",
+  UAL: "United Airlines",
+  SKW: "SkyWest Airlines",
+  IGO: "IndiGo",
+  ASA: "Alaska Airlines",
+  JBU: "JetBlue Airways",
+  FDX: "FedEx Express",
+  JAL: "Japan Airlines",
+  NKS: "Spirit Airlines",
+  THY: "Turkish Airlines",
+  UPS: "UPS Airlines",
+  RPA: "Republic Airways",
+  CES: "China Eastern Airlines",
+  CSN: "China Southern Airlines",
+  ACA: "Air Canada",
+  ANZ: "Air New Zealand",
+  QTR: "Qatar Airways",
+  AZU: "Azul Brazilian Airlines",
+  FFT: "Frontier Airlines",
+  VOI: "Volaris",
+  ANA: "All Nippon Airways",
+  QFA: "Qantas",
+  ENY: "Envoy Air",
+  VOZ: "Virgin Australia",
+  UAE: "Emirates",
+  EDV: "Endeavor Air",
+  GLO: "GOL Linhas Aereas",
+  AVA: "Avianca",
+  LNI: "Lion Air",
+  TAM: "LATAM Brasil",
+  JZA: "Jazz Aviation",
+  JIA: "PSA Airlines",
+  KAL: "Korean Air",
+  CCA: "Air China",
+  AIC: "Air India",
+  AKX: "AirAsia X",
+  EJA: "NetJets",
+  AMX: "Aeromexico",
+  VIV: "VivaAerobus",
+  JST: "Jetstar Airways",
+  SIA: "Singapore Airlines",
+  VJC: "VietJet Air",
+  BTK: "Batik Air",
+  PGT: "Pegasus Airlines",
+  WJA: "WestJet",
+  LAN: "LATAM Airlines Chile",
+  AXM: "AirAsia",
+  CMP: "Copa Airlines",
+};
+
 const map = L.map("map", {
   zoomControl: true,
   worldCopyJump: true,
@@ -67,6 +120,24 @@ function formatEventLabel(event) {
     .join(" ");
 }
 
+function normalizeCode(value) {
+  if (!value) return "UNKNOWN";
+  const normalized = String(value).trim().toUpperCase();
+  return normalized || "UNKNOWN";
+}
+
+function formatOperatorChartLabel(code) {
+  const operatorCode = normalizeCode(code);
+  return operatorNames[operatorCode] ?? operatorCode;
+}
+
+function formatOperatorPopupLabel(code) {
+  const operatorCode = normalizeCode(code);
+  const name = operatorNames[operatorCode];
+  return name ? `${name} (${operatorCode})` : operatorCode;
+}
+
+
 function markerRadius(weight) {
   if (weight == null || Number.isNaN(weight)) return 4;
   return Math.max(3, Math.min(14, Math.sqrt(weight / 1200)));
@@ -82,7 +153,12 @@ function renderLegend() {
   eventLegend.innerHTML = entries;
 }
 
-function renderBarChart(container, rows, labelKey) {
+function renderBarChart(
+  container,
+  rows,
+  labelKey,
+  labelFormatter = (value) => normalizeCode(value),
+) {
   if (!rows || rows.length === 0) {
     container.innerHTML = "<p class='empty'>No data for this hour</p>";
     return;
@@ -93,11 +169,11 @@ function renderBarChart(container, rows, labelKey) {
   container.innerHTML = rows
     .slice(0, 10)
     .map((row) => {
-      const label = row[labelKey] ?? "UNKNOWN";
+      const label = labelFormatter(row[labelKey]);
       const value = Number(row.capacity_weight) || 0;
       const pct = (value / maxValue) * 100;
       return `
-        <div class="bar-row">
+        <div class="bar-row" title="${label}">
           <span class="bar-label">${label}</span>
           <div class="bar-track">
             <div class="bar-fill" style="width:${pct.toFixed(2)}%"></div>
@@ -145,7 +221,7 @@ function renderMap(geojson) {
       layer.bindPopup(`
         <strong>${p.callsign ?? p.flight ?? "Unknown Flight"}</strong><br/>
         Status: ${formatEventLabel(p.event)}<br/>
-        Operator: ${p.operator ?? "UNKNOWN"}<br/>
+        Operator: ${formatOperatorPopupLabel(p.operator)}<br/>
         Equipment: ${p.equipment ?? "UNKNOWN"}<br/>
         Capacity (weight): ${p.available_capacity_weight ? Math.round(p.available_capacity_weight).toLocaleString() : "n/a"}
       `);
@@ -172,7 +248,12 @@ async function renderHour(index) {
   statTakeoffs.textContent = formatInteger(row.takeoffs_this_hour);
   statLandings.textContent = formatInteger(row.landings_this_hour);
 
-  renderBarChart(operatorsChart, row.top_operators, "operator");
+  renderBarChart(
+    operatorsChart,
+    row.top_operators,
+    "operator",
+    formatOperatorChartLabel,
+  );
   renderBarChart(equipmentChart, row.top_equipment, "equipment");
 
   const geojson = await getSnapshot(row.snapshot);
