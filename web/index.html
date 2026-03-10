@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>State of the Sky</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="dashboard">
+      <section class="headline" aria-label="Headline metrics">
+        <h1>The Weight of the Sky</h1>
+        <p class="subtitle">Right now the sky holds</p>
+        <p id="tonnes-now" class="big-number">--</p>
+        <p class="unit">tonnes of cargo capacity</p>
+      </section>
+
+      <section class="map-panel" aria-label="Hourly aircraft state map">
+        <div class="panel-title-row">
+          <h2>State of the Sky</h2>
+          <span id="hour-label" class="hour-label">--</span>
+        </div>
+        <div id="map" role="img" aria-label="Map of aircraft positions"></div>
+        <div class="stats-cards" aria-label="Hourly flight stats">
+          <article class="stat-card">
+            <p class="stat-label">Active aircraft</p>
+            <p id="stat-active-aircraft" class="stat-value">--</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Takeoffs this hour</p>
+            <p id="stat-takeoffs" class="stat-value">--</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Landings this hour</p>
+            <p id="stat-landings" class="stat-value">--</p>
+          </article>
+        </div>
+        <div class="legend" id="event-legend"></div>
+      </section>
+
+      <section class="side-panel" aria-label="Top capacity rankings">
+        <article class="chart-card">
+          <h3>Top Operators (Airborne Capacity)</h3>
+          <div id="operators-chart" class="mini-chart"></div>
+        </article>
+        <article class="chart-card">
+          <h3>Top Equipment (Airborne Capacity)</h3>
+          <div id="equipment-chart" class="mini-chart"></div>
+        </article>
+      </section>
+
+      <section class="timeline" aria-label="Hourly controls">
+        <label for="hour-slider">Hour</label>
+        <input id="hour-slider" type="range" min="0" max="0" step="1" value="0" />
+        <span id="hour-slider-label" class="slider-label">--</span>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
