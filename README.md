@@ -96,6 +96,10 @@ The pipeline creates `capacity_data_quality_summary`, which reports counts and p
 
 This is the core of the repository, the `State of the Sky` project. This is a dashboard for visualising the current cargo capacity airborne (using the limited data available). Each dot represents the most up-to-date event known of that specific flight, and the size of the dot is proportional to the cargo capacity (in terms of payload) of the airplane being used. The map data is built using the `geojson` library and projected on top of a map from `OpenStreetMap`.
 
+#### Screenshots
+![State of the Sky dashboard](./images/dashboard.png)
+![State of the Sky map zoom](./images/map_zoom.png)
+
  #### How to use:
  - Use slider at the bottom to change the hour of the day.
  - Click on dots to see details about the flight.
